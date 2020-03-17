@@ -48,7 +48,7 @@ export default function NotificationProcessorFactory(feedbackLoop, userKeyHashes
           break;
         }
         case Types.SPLIT_KILL:
-          feedbackLoop.queueKillSplit(
+          feedbackLoop.killSplit(
             eventData.changeNumber,
             eventData.splitName,
             eventData.defaultTreatment);
