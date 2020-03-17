@@ -37,8 +37,6 @@ export default class SSEClient {
     const channels = JSON.parse(decodedToken['x-ably-capability']);
     const channelsQueryParam = Object.keys(channels).join(',');
     const url = `${BASE_URL}?channels=${channelsQueryParam}&accessToken=${token}&v=${VERSION}`;
-    // url for testing
-    // const url = `${BASE_URL}?channels=${channels}&key=${jwt}&v=${VERSION}`;
 
     // @TODO set options
     const options = {};

@@ -29,6 +29,6 @@ export const authDataSample = {
   decodedToken: decodedJwtPayloadSample,
 };
 
-export const splitKeySample = 'emi@split.io';
+export const userKeySample = 'emi@split.io';
 
-export const splitKeyBase64HashSample = 'MjAxNjU2NDU5Mw==';
+export const userKeyBase64HashSample = 'MjAxNjU2NDU5Mw==';

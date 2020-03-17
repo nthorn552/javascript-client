@@ -10,8 +10,8 @@ export default function BrowserSyncManagerFactory(settings) {
       if (!pushManager)
         producer.start();
       else {
-        const splitKey = settings.core.key;
-        pushManager.addProducerWithMySegmentsUpdater(splitKey, producer);
+        const userKey = settings.core.key;
+        pushManager.addProducerWithMySegmentsUpdater(userKey, producer);
       }
     },
     stopFullProducer(producer) {
@@ -22,15 +22,15 @@ export default function BrowserSyncManagerFactory(settings) {
     },
     startPartialProducer(producer, sharedSettings) {
       if (pushManager) {
-        const splitKey = sharedSettings.core.key;
-        pushManager.addProducerWithMySegmentsUpdater(splitKey, producer);
+        const userKey = sharedSettings.core.key;
+        pushManager.addProducerWithMySegmentsUpdater(userKey, producer);
       } else
         producer.start();
     },
     stopPartialProducer(producer, sharedSettings) {
       if (pushManager) {
-        const splitKey = sharedSettings.core.key;
-        pushManager.removeProducerWithMySegmentsUpdater(splitKey, producer);
+        const userKey = sharedSettings.core.key;
+        pushManager.removeProducerWithMySegmentsUpdater(userKey, producer);
       } else
         producer.stop();
     },

@@ -2,7 +2,7 @@ import SSEClient from '../sseclient';
 import authenticate from '../authclient';
 import FeedbackLoopFactory from '../feedbackloop';
 import NotificationProcessorFactory from '../notificationprocessor';
-import { hashSplitKey } from '../../utils/lang';
+import { hashUserKey } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
 
@@ -41,19 +41,19 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
     }, delayInMillis);
   }
 
-  // splitKeys contain the set of keys used for authentication on client-side.
+  // userKeys contain the set of keys used for authentication on client-side.
   // The object stay empty in server-side
-  const splitKeys = {};
-  // splitKeyHashes contain the list of key hashes used by NotificationProcessor to map MY_SEGMENTS_UPDATE channels to splitKey
-  const splitKeyHashes = {};
+  const userKeys = {};
+  // userKeyHashes contain the list of key hashes used by NotificationProcessor to map MY_SEGMENTS_UPDATE channels to user keys
+  const userKeyHashes = {};
   if (producerWithMySegmentsUpdater) {
-    const hash = hashSplitKey(settings.core.key);
-    splitKeys[settings.core.key] = hash;
-    splitKeyHashes[hash] = settings.core.key;
+    const hash = hashUserKey(settings.core.key);
+    userKeys[settings.core.key] = hash;
+    userKeyHashes[hash] = settings.core.key;
   }
 
   function connect() {
-    authenticate(settings, splitKeys).then(
+    authenticate(settings, userKeys).then(
       function (authData) {
         if (!authData.pushEnabled)
           throw new Error('Streaming is not enabled for the organization');
@@ -79,7 +79,7 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
 
   // @REVIEW FeedbackLoopFactory and NotificationProcessorFactory can be JS classes
   const feedbackLoop = FeedbackLoopFactory(producer, connect);
-  const notificationProcessor = NotificationProcessorFactory(feedbackLoop, splitKeyHashes);
+  const notificationProcessor = NotificationProcessorFactory(feedbackLoop, userKeyHashes);
   sseClient.setEventListener(notificationProcessor);
 
   // Perform initialization phase
@@ -96,18 +96,18 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
     },
 
     // User by SyncManager for browser
-    addProducerWithMySegmentsUpdater(splitKey, producer) {
-      feedbackLoop.addProducerWithMySegmentsUpdater(splitKey, producer);
+    addProducerWithMySegmentsUpdater(userKey, producer) {
+      feedbackLoop.addProducerWithMySegmentsUpdater(userKey, producer);
 
-      const hash = hashSplitKey(splitKey);
-      splitKeys[splitKey] = hash;
-      splitKeyHashes[hash] = splitKey;
+      const hash = hashUserKey(userKey);
+      userKeys[userKey] = hash;
+      userKeyHashes[hash] = userKey;
     },
-    removeProducerWithMySegmentsUpdater(splitKey, producer) {
-      feedbackLoop.removeProducerWithMySegmentsUpdater(splitKey, producer);
+    removeProducerWithMySegmentsUpdater(userKey, producer) {
+      feedbackLoop.removeProducerWithMySegmentsUpdater(userKey, producer);
 
-      delete splitKeyHashes[splitKeys[splitKey]];
-      delete splitKeys[splitKey];
+      delete userKeyHashes[userKeys[userKey]];
+      delete userKeys[userKey];
 
       if (producer.isRunning())
         producer.stop();

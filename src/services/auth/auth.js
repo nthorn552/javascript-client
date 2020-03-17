@@ -1,10 +1,16 @@
 import base from '../request';
 
-export default function GET(settings, splitKeys) {
+function userKeyToQueryParam(userKey) {
+  // no need to check availability of `encodeURIComponent`, since it is a function highly supported in browsers, node and other platforms.
+  return 'users=' + encodeURIComponent(userKey);
+}
+
+export default function GET(settings, userKeys) {
   let relativeUrl = '/auth';
-  if (splitKeys) { // accounting the possibility that splitKeys is undefined
-    const queryParams = Object.keys(splitKeys).map(splitKey => 'users=' + splitKey).join('&');
-    if (queryParams) relativeUrl += '?' + queryParams;  // accounting the possibility that `splitKeys` and thus `queryParams` are empty
+  if (userKeys) { // accounting the possibility that `userKeys` is undefined
+    const queryParams = Object.keys(userKeys).map(userKeyToQueryParam).join('&');
+    if (queryParams) // accounting the possibility that `userKeys` and thus `queryParams` are empty
+      relativeUrl += '?' + queryParams;
   }
   return base(settings, relativeUrl);
 }
