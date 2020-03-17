@@ -1,9 +1,9 @@
 import tape from 'tape';
-import authenticate from '../authclient';
-import SettingsFactory from '../../utils/settings/index';
+import authenticate from '../../authclient';
+import SettingsFactory from '../../../utils/settings/index';
 import MockAdapter from 'axios-mock-adapter';
-import { __getAxiosInstance } from '../../services/transport';
-import { authDataResponseSample, authDataSample } from './mocks/dataMocks';
+import { __getAxiosInstance } from '../../../services/transport';
+import { authDataResponseSample, authDataSample } from '../mocks/dataMocks';
 
 const mock = new MockAdapter(__getAxiosInstance());
 
@@ -15,9 +15,9 @@ const settings = SettingsFactory({
 
 tape('authenticate', t => {
 
-  t.test('success in node (no split keys)', assert => {
+  t.test('success in node (no user keys)', assert => {
 
-    const splitKeys = {};
+    const userKeys = {};
 
     mock.onGet(settings.url('/auth')).replyOnce(req => {
       assert.equal(req.headers['Authorization'], `Bearer ${settings.core.authorizationKey}`,
@@ -25,7 +25,7 @@ tape('authenticate', t => {
       return [200, authDataResponseSample];
     });
 
-    authenticate(settings, splitKeys).then(data => {
+    authenticate(settings, userKeys).then(data => {
       assert.deepEqual(data, authDataSample,
         'if success, authorization must return data with token and decoded token');
     }).catch(error => {
@@ -35,17 +35,17 @@ tape('authenticate', t => {
     assert.end();
   });
 
-  t.test('success in browser (with split keys)', assert => {
+  t.test('success in browser (with user keys)', assert => {
 
-    const splitKeys = { ['emi@split.io']: 'emihash', ['maldo@split.io']: 'maldohash' };
+    const userKeys = { ['emi@split.io']: 'emihash', ['maldo@split.io']: 'maldohash' };
 
-    mock.onGet(settings.url('/auth?users=emi@split.io&users=maldo@split.io')).replyOnce(req => {
+    mock.onGet(settings.url('/auth?users=emi%40split.io&users=maldo%40split.io')).replyOnce(req => {
       assert.equal(req.headers['Authorization'], `Bearer ${settings.core.authorizationKey}`,
         'auth request must contain Authorization header with config authorizationKey');
       return [200, authDataResponseSample];
     });
 
-    authenticate(settings, splitKeys).then(data => {
+    authenticate(settings, userKeys).then(data => {
       assert.deepEqual(data, authDataSample,
         'if success, authorization must return data with token and decoded token');
     }).catch(error => {

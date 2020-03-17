@@ -1,14 +1,14 @@
 import tape from 'tape';
 import sinon from 'sinon';
-import EventSourceMock from './mocks/eventSourceMock';
-import { authDataSample } from  './mocks/dataMocks';
+import EventSourceMock from '../mocks/eventSourceMock';
+import { authDataSample } from  '../mocks/dataMocks';
 import proxyquire from 'proxyquire';
 const proxyquireStrict = proxyquire.noCallThru();
 
 let eventSourceReference;
 
 // Import the module, mocking getEventSource.
-const SSClient = proxyquireStrict('../sseclient/index', {
+const SSClient = proxyquireStrict('../../sseclient/index', {
   '../../services/sse/getEventSource': () => eventSourceReference
 }).default;
 

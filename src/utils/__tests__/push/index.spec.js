@@ -6,9 +6,9 @@
  */
 
 import tape from 'tape';
-import { jwtSample, decodedJwtPayloadSample, base64sample, decodedBase64sample, splitKeySample, splitKeyBase64HashSample } from './mocks/dataMocks';
+import { jwtSample, decodedJwtPayloadSample, base64sample, decodedBase64sample, userKeySample, userKeyBase64HashSample } from '../../../syncmanager/__tests__/mocks/dataMocks';
 
-import { encodeToBase64, decodeFromBase64, decodeJWTtoken, hashSplitKey } from '../../utils/lang';
+import { encodeToBase64, decodeFromBase64, decodeJWTtoken, hashUserKey } from '../../push';
 
 tape('encodeToBase64', assert => {
 
@@ -31,9 +31,9 @@ tape('decodeJWTtoken', assert => {
 
 });
 
-tape('hashSplitKey', assert => {
+tape('hashUserKey', assert => {
 
-  assert.deepEqual(hashSplitKey(splitKeySample), splitKeyBase64HashSample, 'hashes key and encodes to base64');
+  assert.deepEqual(hashUserKey(userKeySample), userKeyBase64HashSample, 'hashes key and encodes to base64');
   assert.end();
 
 });
