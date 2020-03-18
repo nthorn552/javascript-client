@@ -1,6 +1,6 @@
 import authService from '../../services/auth';
 import authRequest from '../../services/auth/auth';
-import { decodeJWTtoken } from '../../utils/lang';
+import { decodeJWTtoken } from '../../utils/push';
 
 /**
  * Run authentication requests to Auth Server, and handle response decoding the JTW token.

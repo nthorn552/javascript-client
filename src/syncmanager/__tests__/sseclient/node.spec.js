@@ -9,7 +9,7 @@ let eventSourceReference;
 
 // Import the module, mocking getEventSource.
 const SSClient = proxyquireStrict('../../sseclient/index', {
-  '../../services/sse/getEventSource': () => eventSourceReference
+  '../../services/getEventSource': () => eventSourceReference
 }).default;
 
 tape('SSClient', t => {
@@ -27,9 +27,9 @@ tape('SSClient', t => {
     assert.end();
   });
 
-  t.test('setEventListener, open and close methods', assert => {
-    // instance eventListener
-    const listener = {
+  t.test('setEventHandler, open and close methods', assert => {
+    // instance event handler
+    const handler = {
       handleOpen: sinon.stub(),
       handleClose: sinon.stub(),
       handleError: sinon.stub(),
@@ -39,43 +39,50 @@ tape('SSClient', t => {
     // instance SSEClient
     eventSourceReference = EventSourceMock;
     const instance = SSClient.getInstance();
-    instance.setEventListener(listener);
+    instance.setEventHandler(handler);
 
     // open connection
     instance.open(authDataSample);
     let esconnection = instance.connection; // instance of EventSource used to mock events
     esconnection.emitOpen();
-    assert.ok(listener.handleOpen.calledOnce, 'handleOpen called when connection is opened');
-    listener.handleOpen.resetHistory();
+    assert.ok(handler.handleOpen.calledOnce, 'handleOpen called when connection is opened');
+    handler.handleOpen.resetHistory();
 
     // emit message
     const message = 'message';
     esconnection.emitMessage(message);
-    assert.ok(listener.handleMessage.calledWith(message), 'handleMessage called when message received');
-    listener.handleMessage.resetHistory();
+    assert.ok(handler.handleMessage.calledWith(message), 'handleMessage called when message received');
+    handler.handleMessage.resetHistory();
 
     // emit error
     const error = 'error';
     esconnection.emitError(error);
-    assert.ok(listener.handleError.calledWith(error), 'handleError called when error received');
-    listener.handleError.resetHistory();
+    assert.ok(handler.handleError.calledWith(error), 'handleError called when error received');
+    handler.handleError.resetHistory();
 
     // close connection
     instance.close();
-    assert.ok(listener.handleClose.calledOnce, 'handleClose called when connection is closed');
-    listener.handleClose.resetHistory();
+    assert.ok(handler.handleClose.calledOnce, 'handleClose called when connection is closed');
+    handler.handleClose.resetHistory();
 
     // open attempt without open event emitted
     instance.open(authDataSample);
-    assert.ok(listener.handleOpen.notCalled, 'handleOpen not called until open event is emitted');
+    assert.ok(handler.handleOpen.notCalled, 'handleOpen not called until open event is emitted');
 
     // reopen connection
     instance.open(authDataSample);
-    assert.ok(listener.handleClose.notCalled, 'handleClose not called when a new connection want to be open and previous one was not open');
+    assert.ok(handler.handleClose.notCalled, 'handleClose not called when a new connection want to be open and previous one was not open');
     instance.connection.emitOpen();
-    assert.ok(listener.handleOpen.calledOnce, 'handleOpen called when connection is open');
+    assert.ok(handler.handleOpen.calledOnce, 'handleOpen called when connection is open');
     instance.open(authDataSample);
-    assert.ok(listener.handleClose.calledOnce, 'handleClose called when new connection want to be ope and previous one was open');
+    assert.ok(handler.handleClose.calledOnce, 'handleClose called when connection is closed to open a new connection');
+
+    // remove event handler before opening a new connection
+    handler.handleOpen.resetHistory();
+    instance.setEventHandler(undefined);
+    instance.open(authDataSample);
+    instance.connection.emitOpen();
+    assert.ok(handler.handleOpen.notCalled, 'handleOpen not called if connection is open but the handler was removed');
 
     assert.end();
   });

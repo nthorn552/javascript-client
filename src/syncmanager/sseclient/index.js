@@ -1,4 +1,4 @@
-import getEventSource from '../../services/sse/getEventSource';
+import getEventSource from '../../services/getEventSource';
 
 // const CONNECTING = 0;
 const OPEN = 1;
@@ -33,19 +33,22 @@ export default class SSEClient {
     this.close();
 
     // @TODO test and add error handling
-    // @REVIEW url encoded
     const channels = JSON.parse(decodedToken['x-ably-capability']);
-    const channelsQueryParam = Object.keys(channels).join(',');
+    const channelsQueryParam = Object.keys(channels).map(
+      function (channel) {
+        return encodeURIComponent(channel);
+      }
+    ).join(',');
     const url = `${BASE_URL}?channels=${channelsQueryParam}&accessToken=${token}&v=${VERSION}`;
 
     // @TODO set options
     const options = {};
     this.connection = new this.EventSource(url, options);
 
-    if (this.listener) { // no need to check if SSEClient is used only by PushManager
-      this.connection.onopen = this.listener.handleOpen;
-      this.connection.onmessage = this.listener.handleMessage;
-      this.connection.onerror = this.listener.handleError;
+    if (this.handler) { // no need to check if SSEClient is used only by PushManager
+      this.connection.onopen = this.handler.handleOpen;
+      this.connection.onmessage = this.handler.handleMessage;
+      this.connection.onerror = this.handler.handleError;
     }
   }
 
@@ -53,7 +56,7 @@ export default class SSEClient {
   close() {
     if (this.connection && this.connection.readyState === OPEN) {
       this.connection.close();
-      if (this.listener) this.listener.handleClose();
+      if (this.handler) this.handler.handleClose();
     }
   }
 }
