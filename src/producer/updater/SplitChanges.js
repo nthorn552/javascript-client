@@ -82,6 +82,7 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
             readyOnAlreadyExistentState = false;
             splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
           }
+          return splitChanges.till;
         });
       })
       .catch(error => {
