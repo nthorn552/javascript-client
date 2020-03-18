@@ -5,6 +5,7 @@ import { hashUserKey } from '../../utils/push';
 import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
+import syncSplitsFactory from '../syncsplits';
 
 /**
  * Factory of the push mode manager.
@@ -146,16 +147,7 @@ export default function PushManagerFactory(context, producer, userKey) {
 
   /** Functions related to synchronization according to the spec (responsability of Queues and Workers) */
 
-  function killSplit(changeNumber, splitName, defaultTreatment) {
-    // @TODO use queue
-    storage.splits.killSplit(splitName, defaultTreatment);
-    producer.callSplitsUpdater(changeNumber);
-  }
-
-  function queueSyncSplits(changeNumber) {
-    // @TODO use queue
-    producer.callSplitsUpdater(changeNumber);
-  }
+  const syncSplits = syncSplitsFactory(storage.splits, producer);
 
   function queueSyncSegments(changeNumber, segmentName) {
     // @TODO use queue
@@ -174,10 +166,10 @@ export default function PushManagerFactory(context, producer, userKey) {
     startPolling,
     stopPollingAndSyncAll,
     reconnectPush: connect,
-    queueSyncSplits,
+    queueSyncSplits: syncSplits.queueSyncSplits,
     queueSyncSegments,
     queueSyncMySegments,
-    killSplit,
+    killSplit: syncSplits.killSplit,
   }, userKeyHashes);
   sseClient.setEventHandler(notificationProcessor);
 
