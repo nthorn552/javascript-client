@@ -8,36 +8,33 @@ export default function syncSplitsFactory(splitStorage, splitProducer) {
   let splitChangesQueue = [];
 
   // Preconditions: isSplitsUpdaterRunning === false
-  function dequeSplitsUpdaterCalls() {
+  function dequeSyncSplitsCall() {
     if (splitChangesQueue.length > 0) {
-      splitChangesQueue.sort((a, b) => b - a);
-      if (splitChangesQueue[0] > splitStorage.getChangeNumber()) {
-        splitChangesQueue = [];
+      if (splitChangesQueue[splitChangesQueue.length - 1] > splitStorage.getChangeNumber()) {
         splitProducer.callSplitsUpdater().then(() => {
-          dequeSplitsUpdaterCalls();
+          dequeSyncSplitsCall();
         });
+      } else {
+        splitChangesQueue.pop();
+        dequeSyncSplitsCall();
       }
     }
   }
 
-  // Invoked when: stop polling (changeNumber === undefined) and splitChange event
+  // Invoked on splitChange event
   function queueSyncSplits(changeNumber) {
     const currentChangeNumber = splitStorage.getChangeNumber();
-
-    // if not changeNumber is provided (stop polling scenario), we must fetch splits.
-    if (changeNumber === undefined)
-      changeNumber = currentChangeNumber + 1;
 
     if (changeNumber <= currentChangeNumber)
       return;
 
-    splitChangesQueue.unshift(changeNumber);
+    splitChangesQueue.push(changeNumber);
 
     if (splitProducer.isSplitsUpdaterRunning()) {
       return;
     }
 
-    dequeSplitsUpdaterCalls();
+    dequeSyncSplitsCall();
   }
 
   function killSplit(changeNumber, splitName, defaultTreatment) {

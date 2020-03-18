@@ -29,10 +29,18 @@ const FullBrowserProducer = (context) => {
   const splitsUpdater = SplitChangesUpdater(context);
   const segmentsUpdater = MySegmentsUpdater(context);
 
+  let isSplitsUpdaterRunning = false;
+  function callSplitsUpdater() {
+    isSplitsUpdaterRunning = true;
+    return splitsUpdater().then(() => {
+      isSplitsUpdaterRunning = false;
+    });
+  }
+
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
-  const splitsUpdaterTask = TaskFactory(splitsUpdater, settings.scheduler.featuresRefreshRate);
+  const splitsUpdaterTask = TaskFactory(callSplitsUpdater, settings.scheduler.featuresRefreshRate);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
@@ -57,15 +65,11 @@ const FullBrowserProducer = (context) => {
     // Used by SyncManager to know if running in polling mode.
     isRunning: splitsUpdaterTask.isRunning,
 
-    // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.
-    callSplitsUpdater(changeNumber) {
-      if(changeNumber) {
-        // @TODO check if changeNumber is older
-        return;
-      }
-
-      splitsUpdater();
+    isSplitsUpdaterRunning() {
+      return isSplitsUpdaterRunning;
     },
+
+    callSplitsUpdater,
 
     callMySegmentsUpdater(changeNumber, segmentList) {
       if(changeNumber) {
