@@ -30,26 +30,17 @@ const NodeUpdater = (context) => {
 
   let stopSplitsUpdate = false;
   let stopSegmentsUpdate = false;
+  let splitFetchCompleted = false;
   let isRunning = false;
-
   let isSplitsUpdaterRunning = false;
-  let splitChangesQueue = [];
-  let lastSplitChangeNumber = -1;
 
-  // Preconditions: isSplitsUpdaterRunning === false
-  function dequeSplitsUpdaterCalls() {
-    if (splitChangesQueue.length > 0) {
-      splitChangesQueue.sort((a, b) => b - a);
-      if (splitChangesQueue[0] > lastSplitChangeNumber) {
-        splitChangesQueue = [];
-        isSplitsUpdaterRunning = true;
-        splitsUpdater().then((changeNumber) => {
-          lastSplitChangeNumber = changeNumber;
-          isSplitsUpdaterRunning = false;
-          dequeSplitsUpdaterCalls();
-        });
-      }
-    }
+  function callSplitsUpdater() {
+    isSplitsUpdaterRunning = true;
+    return splitsUpdater().then(() => {
+      // Mark splits as ready (track first successfull call to start downloading segments)
+      splitFetchCompleted = true;
+      isSplitsUpdaterRunning = false;
+    });
   }
 
   return {
@@ -63,8 +54,12 @@ const NodeUpdater = (context) => {
         if (!stopSegmentsUpdate) {
           stopSegmentsUpdate = repeat(
             scheduleSegmentsUpdate => {
-              log.debug('Fetching segments');
-              segmentsUpdater().then(() => scheduleSegmentsUpdate());
+              if (splitFetchCompleted) {
+                log.debug('Fetching segments');
+                segmentsUpdater().then(() => scheduleSegmentsUpdate());
+              } else {
+                scheduleSegmentsUpdate();
+              }
             },
             settings.scheduler.segmentsRefreshRate
           );
@@ -74,16 +69,13 @@ const NodeUpdater = (context) => {
       stopSplitsUpdate = repeat(
         scheduleSplitsUpdate => {
           log.debug('Fetching splits');
-          isSplitsUpdaterRunning = true;
-          splitsUpdater()
-            .then((changeNumber) => {
-              lastSplitChangeNumber = changeNumber;
-              isSplitsUpdaterRunning = false;
+
+          callSplitsUpdater()
+            .then(() => {
               // Spin up the segments update if needed
               spinUpSegmentUpdater();
               // Re-schedule update
               scheduleSplitsUpdate();
-              // @REVIEW should we call `dequeSplitsUpdaterCalls` here?
             });
         },
         settings.scheduler.featuresRefreshRate
@@ -106,22 +98,14 @@ const NodeUpdater = (context) => {
       return isRunning;
     },
 
-    // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.
-    callSplitsUpdater(changeNumber = lastSplitChangeNumber + 1) {
-      if (changeNumber <= lastSplitChangeNumber)
-        return;
-
-      splitChangesQueue.unshift(changeNumber);
-
-      if (isSplitsUpdaterRunning) {
-        return;
-      }
-
-      dequeSplitsUpdaterCalls();
+    isSplitsUpdaterRunning() {
+      return isSplitsUpdaterRunning;
     },
 
+    callSplitsUpdater,
+
     callSegmentsUpdater(changeNumber, segmentName) {
-      if (changeNumber) {
+      if(changeNumber) {
         // @TODO check if changeNumber is older
         return;
       }

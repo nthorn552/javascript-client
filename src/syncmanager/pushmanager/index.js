@@ -113,6 +113,21 @@ export default function PushManagerFactory(context, producer, userKey) {
     );
   }
 
+  /** Functions related to synchronization according to the spec (responsability of Queues and Workers) */
+
+  const syncSplits = syncSplitsFactory(storage.splits, producer);
+
+  function queueSyncSegments(changeNumber, segmentName) {
+    // @TODO use queue
+    producer.callSegmentsUpdater(changeNumber, segmentName);
+  }
+
+  function queueSyncMySegments(changeNumber, userKey, segmentList) {
+    // @TODO use queue
+    if (partialProducers[userKey])
+      partialProducers[userKey].callMySegmentsUpdater(changeNumber, segmentList);
+  }
+
   /** Feedbackloop functions, according to the spec */
 
   function startPolling() {
@@ -135,7 +150,7 @@ export default function PushManagerFactory(context, producer, userKey) {
     });
 
     // fetch splits and segments.
-    producer.callSplitsUpdater();
+    syncSplits.queueSyncSplits();
     if (!userKey) { // node
       producer.callSegmentsUpdater();
     } else { // browser
@@ -143,21 +158,6 @@ export default function PushManagerFactory(context, producer, userKey) {
         producer.callMySegmentsUpdater();
       });
     }
-  }
-
-  /** Functions related to synchronization according to the spec (responsability of Queues and Workers) */
-
-  const syncSplits = syncSplitsFactory(storage.splits, producer);
-
-  function queueSyncSegments(changeNumber, segmentName) {
-    // @TODO use queue
-    producer.callSegmentsUpdater(changeNumber, segmentName);
-  }
-
-  function queueSyncMySegments(changeNumber, userKey, segmentList) {
-    // @TODO use queue
-    if (partialProducers[userKey])
-      partialProducers[userKey].callMySegmentsUpdater(changeNumber, segmentList);
   }
 
   /** initialization */
