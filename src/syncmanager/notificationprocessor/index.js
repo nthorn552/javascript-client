@@ -65,7 +65,7 @@ export default function NotificationProcessorFactory(feedbackLoop, userKeyHashes
     handleMessage(message) {
       const messageData = messageParser(message);
       // @TODO logic of NotificationManagerKeeper
-      handleEvent(messageData.data, message.channel);
+      handleEvent(messageData.data, messageData.channel);
     },
 
   };

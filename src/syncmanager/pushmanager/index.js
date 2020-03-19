@@ -7,6 +7,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
 import syncSplitsFactory from '../syncsplits';
 import syncSegmentsFactory from '../syncsegments';
+import syncMySegmentsFactory from '../syncmysegments';
 
 /**
  * Factory of the push mode manager.
@@ -34,11 +35,11 @@ export default function PushManagerFactory(context, producer, userKey) {
   const userKeys = {};
   // userKeyHashes contain the list of key hashes used by NotificationProcessor to map MY_SEGMENTS_UPDATE channels to userKey
   const userKeyHashes = {};
-  // reference to producers, to handle synchronization
+  // reference to partial producers and segments storage, to handle synchronization
   const partialProducers = {};
 
-  function addPartialProducer(userKey, producer) {
-    partialProducers[userKey] = producer;
+  function addPartialProducer(userKey, producer, mySegmentsStorage) {
+    partialProducers[userKey] = { producer, mySegmentsStorage };
     const hash = hashUserKey(userKey);
     userKeys[userKey] = hash;
     userKeyHashes[hash] = userKey;
@@ -52,17 +53,9 @@ export default function PushManagerFactory(context, producer, userKey) {
       producer.stop();
   }
 
-  // for browser:
-  // - add main producer as `partialproducer` to handle mySegments synchronization as a partial producer
-  // - update `syncingMySegments` flag, to perform synchronization of mySegments updaters
-  let syncingMySegments = false;
-  if (userKey) {
-    addPartialProducer(userKey, producer);
-    const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
-    splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, function () {
-      syncingMySegments = storage.splits.usesSegments();
-    });
-  }
+  // for browser, add main producer as `partial producer` to handle its mySegments synchronization
+  if (userKey)
+    addPartialProducer(userKey, producer, storage.segments);
 
   /** PushManager functions, according to the spec */
 
@@ -90,7 +83,7 @@ export default function PushManagerFactory(context, producer, userKey) {
   }
 
   function connect() {
-    authenticate(settings, syncingMySegments ? userKeys : undefined).then(
+    authenticate(settings, userKeys).then(
       function (authData) {
         if (!authData.pushEnabled)
           throw new Error('Streaming is not enabled for the organization');
@@ -118,27 +111,27 @@ export default function PushManagerFactory(context, producer, userKey) {
 
   const syncSplits = syncSplitsFactory(storage.splits, producer);
 
-  const syncSegments = userKey ? syncSegmentsFactory(storage.segments, partialProducers) : syncSegmentsFactory(storage.segments, producer);
+  const syncSegments = userKey ? syncMySegmentsFactory(partialProducers) : syncSegmentsFactory(storage.segments, producer);
 
   /** Feedbackloop functions, according to the spec */
 
   function startPolling() {
     // producer will have a single producer in node, and the list of partialProducers in browser
-    const producers = userKey ? partialProducers : { 'node': producer };
+    const producers = userKey ? partialProducers : { 'node': { producer } };
 
-    forOwn(producers, function (producer) {
-      if (!producer.isRunning())
-        producer.start();
+    forOwn(producers, function (entry) {
+      if (!entry.producer.isRunning())
+        entry.producer.start();
     });
   }
 
   function stopPollingAndSyncAll() {
     // producer will have a single producer in node, and the list of partialProducers in browser
-    const producers = userKey ? partialProducers : { 'node': producer };
+    const producers = userKey ? partialProducers : { 'node': { producer } };
 
-    forOwn(producers, function (producer) {
-      if (producer.isRunning())
-        producer.stop();
+    forOwn(producers, function (entry) {
+      if (entry.producer.isRunning())
+        entry.producer.stop();
     });
 
     // fetch splits and segments.
@@ -149,8 +142,8 @@ export default function PushManagerFactory(context, producer, userKey) {
     } else { // browser
       producer.callSplitsUpdater();
       // @TODO review precence of segments to run mySegmentUpdaters
-      forOwn(partialProducers, function (producer) {
-        producer.callMySegmentsUpdater();
+      forOwn(partialProducers, function (entry) {
+        entry.producer.callMySegmentsUpdater();
       });
     }
   }

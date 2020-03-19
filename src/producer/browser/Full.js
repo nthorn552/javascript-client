@@ -37,6 +37,14 @@ const FullBrowserProducer = (context) => {
     });
   }
 
+  let isMySegmentsUpdaterRunning = false;
+  function callMySegmentsUpdater(segmentList) {
+    isMySegmentsUpdaterRunning = true;
+    return segmentsUpdater(undefined, segmentList).then(() => {
+      isMySegmentsUpdaterRunning = false;
+    });
+  }
+
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
@@ -71,16 +79,11 @@ const FullBrowserProducer = (context) => {
 
     callSplitsUpdater,
 
-    callMySegmentsUpdater(changeNumber, segmentList) {
-      if(changeNumber) {
-        // @TODO check if changeNumber is older
-        return;
-      }
+    isMySegmentsUpdaterRunning() {
+      return isMySegmentsUpdaterRunning;
+    },
 
-      // @TODO
-      segmentList;
-      segmentsUpdater();
-    }
+    callMySegmentsUpdater,
   };
 };
 

@@ -59,9 +59,10 @@ export default function BrowserSyncManagerFactory(context) {
         };
 
         // start syncing
-        if (pushManager)
-          pushManager.addPartialProducer(userKey, partialProducer);
-        else
+        if (pushManager) {
+          const mySegmentsStorage = sharedContext.get(context.constants.STORAGE).segments;
+          pushManager.addPartialProducer(userKey, partialProducer, mySegmentsStorage);
+        } else
           partialProducer.start();
 
       } else {
