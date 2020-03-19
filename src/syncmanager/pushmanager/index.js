@@ -6,6 +6,7 @@ import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
 import syncSplitsFactory from '../syncsplits';
+import syncSegmentsFactory from '../syncsegments';
 
 /**
  * Factory of the push mode manager.
@@ -113,20 +114,11 @@ export default function PushManagerFactory(context, producer, userKey) {
     );
   }
 
-  /** Functions related to synchronization according to the spec (responsability of Queues and Workers) */
+  /** Functions related to synchronization according to the spec (Queues and Workers) */
 
   const syncSplits = syncSplitsFactory(storage.splits, producer);
 
-  function queueSyncSegments(changeNumber, segmentName) {
-    // @TODO use queue
-    producer.callSegmentsUpdater(changeNumber, segmentName);
-  }
-
-  function queueSyncMySegments(changeNumber, userKey, segmentList) {
-    // @TODO use queue
-    if (partialProducers[userKey])
-      partialProducers[userKey].callMySegmentsUpdater(changeNumber, segmentList);
-  }
+  const syncSegments = userKey ? syncSegmentsFactory(storage.segments, partialProducers) : syncSegmentsFactory(storage.segments, producer);
 
   /** Feedbackloop functions, according to the spec */
 
@@ -150,10 +142,13 @@ export default function PushManagerFactory(context, producer, userKey) {
     });
 
     // fetch splits and segments.
-    syncSplits.queueSyncSplits();
     if (!userKey) { // node
-      producer.callSegmentsUpdater();
+      producer.callSplitsUpdater().then(() => {
+        producer.callSegmentsUpdater();
+      });
     } else { // browser
+      producer.callSplitsUpdater();
+      // @TODO review precence of segments to run mySegmentUpdaters
       forOwn(partialProducers, function (producer) {
         producer.callMySegmentsUpdater();
       });
@@ -167,12 +162,14 @@ export default function PushManagerFactory(context, producer, userKey) {
     stopPollingAndSyncAll,
     reconnectPush: connect,
     queueSyncSplits: syncSplits.queueSyncSplits,
-    queueSyncSegments,
-    queueSyncMySegments,
+    queueSyncSegments: syncSegments.queueSyncSegments,
+    queueSyncMySegments: syncSegments.queueSyncMySegments,
     killSplit: syncSplits.killSplit,
   }, userKeyHashes);
   sseClient.setEventHandler(notificationProcessor);
 
+  // @TODO we could separate `syncAll` from `stopPollingAndSyncAll`
+  stopPollingAndSyncAll();
   connect();
 
   return {

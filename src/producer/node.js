@@ -33,6 +33,7 @@ const NodeUpdater = (context) => {
   let splitFetchCompleted = false;
   let isRunning = false;
   let isSplitsUpdaterRunning = false;
+  let isSegmentsUpdaterRunning = false;
 
   function callSplitsUpdater() {
     isSplitsUpdaterRunning = true;
@@ -40,6 +41,13 @@ const NodeUpdater = (context) => {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
       isSplitsUpdaterRunning = false;
+    });
+  }
+
+  function callSegmentsUpdater(segments) {
+    isSegmentsUpdaterRunning = true;
+    return segmentsUpdater(segments).then(() => {
+      isSegmentsUpdaterRunning = false;
     });
   }
 
@@ -56,7 +64,7 @@ const NodeUpdater = (context) => {
             scheduleSegmentsUpdate => {
               if (splitFetchCompleted) {
                 log.debug('Fetching segments');
-                segmentsUpdater().then(() => scheduleSegmentsUpdate());
+                callSegmentsUpdater().then(() => scheduleSegmentsUpdate());
               } else {
                 scheduleSegmentsUpdate();
               }
@@ -104,16 +112,11 @@ const NodeUpdater = (context) => {
 
     callSplitsUpdater,
 
-    callSegmentsUpdater(changeNumber, segmentName) {
-      if(changeNumber) {
-        // @TODO check if changeNumber is older
-        return;
-      }
+    isSegmentsUpdaterRunning() {
+      return isSegmentsUpdaterRunning;
+    },
 
-      // @TODO
-      segmentName;
-      segmentsUpdater();
-    }
+    callSegmentsUpdater,
   };
 };
 
