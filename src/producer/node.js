@@ -37,16 +37,18 @@ const NodeUpdater = (context) => {
 
   function callSplitsUpdater() {
     isSplitsUpdaterRunning = true;
-    return splitsUpdater().then(() => {
+    return splitsUpdater().then(function () {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
+    }).finally(function () {
       isSplitsUpdaterRunning = false;
     });
   }
 
   function callSegmentsUpdater(segments) {
+    // @TODO update isSegmentsUpdaterRunning per segmentName
     isSegmentsUpdaterRunning = true;
-    return segmentsUpdater(segments).then(() => {
+    return segmentsUpdater(segments).finally(function () {
       isSegmentsUpdaterRunning = false;
     });
   }

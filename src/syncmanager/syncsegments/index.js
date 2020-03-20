@@ -12,9 +12,9 @@ export default function syncSegmentsFactory(segmentsStorage, segmentsProducer) {
     if (segmentsChangesQueues.length > 0) {
       const { changeNumber, segmentName } = segmentsChangesQueues[segmentsChangesQueues.length - 1];
       if (changeNumber > segmentsStorage.getChangeNumber(segmentName)) {
-        segmentsProducer.callSegmentsUpdater([segmentName]).then(() => {
-          dequeSyncSegmentsCall();
-        });
+        segmentsProducer.callSegmentsUpdater([segmentName]).then(
+          dequeSyncSegmentsCall
+        );
       } else {
         segmentsChangesQueues.pop();
         dequeSyncSegmentsCall();
@@ -26,14 +26,11 @@ export default function syncSegmentsFactory(segmentsStorage, segmentsProducer) {
   function queueSyncSegments(changeNumber, segmentName) {
     const currentChangeNumber = segmentsStorage.getChangeNumber(segmentName);
 
-    if (changeNumber <= currentChangeNumber)
-      return;
+    if (changeNumber <= currentChangeNumber) return;
 
     segmentsChangesQueues.push({ changeNumber, segmentName });
 
-    if (segmentsProducer.isSegmentsUpdaterRunning()) {
-      return;
-    }
+    if (segmentsProducer.isSegmentsUpdaterRunning()) return;
 
     dequeSyncSegmentsCall();
   }

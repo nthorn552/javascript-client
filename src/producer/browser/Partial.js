@@ -33,9 +33,10 @@ const PartialBrowserProducer = (context) => {
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   let isMySegmentsUpdaterRunning = false;
+
   function callMySegmentsUpdater(segmentList) {
     isMySegmentsUpdaterRunning = true;
-    return segmentsUpdater(undefined, segmentList).then(() => {
+    return segmentsUpdater(undefined, segmentList).finally(function () {
       isMySegmentsUpdaterRunning = false;
     });
   }

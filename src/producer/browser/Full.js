@@ -30,17 +30,19 @@ const FullBrowserProducer = (context) => {
   const segmentsUpdater = MySegmentsUpdater(context);
 
   let isSplitsUpdaterRunning = false;
+
   function callSplitsUpdater() {
     isSplitsUpdaterRunning = true;
-    return splitsUpdater().then(() => {
+    return splitsUpdater().finally(function() {
       isSplitsUpdaterRunning = false;
     });
   }
 
   let isMySegmentsUpdaterRunning = false;
+
   function callMySegmentsUpdater(segmentList) {
     isMySegmentsUpdaterRunning = true;
-    return segmentsUpdater(undefined, segmentList).then(() => {
+    return segmentsUpdater(undefined, segmentList).finally(function () {
       isMySegmentsUpdaterRunning = false;
     });
   }

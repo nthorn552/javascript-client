@@ -11,9 +11,9 @@ export default function syncSplitsFactory(splitStorage, splitProducer) {
   function dequeSyncSplitsCall() {
     if (splitChangesQueue.length > 0) {
       if (splitChangesQueue[splitChangesQueue.length - 1] > splitStorage.getChangeNumber()) {
-        splitProducer.callSplitsUpdater().then(() => {
-          dequeSyncSplitsCall();
-        });
+        splitProducer.callSplitsUpdater().then(
+          dequeSyncSplitsCall
+        );
       } else {
         splitChangesQueue.pop();
         dequeSyncSplitsCall();
@@ -25,14 +25,11 @@ export default function syncSplitsFactory(splitStorage, splitProducer) {
   function queueSyncSplits(changeNumber) {
     const currentChangeNumber = splitStorage.getChangeNumber();
 
-    if (changeNumber <= currentChangeNumber)
-      return;
+    if (changeNumber <= currentChangeNumber) return;
 
     splitChangesQueue.push(changeNumber);
 
-    if (splitProducer.isSplitsUpdaterRunning()) {
-      return;
-    }
+    if (splitProducer.isSplitsUpdaterRunning()) return;
 
     dequeSyncSplitsCall();
   }

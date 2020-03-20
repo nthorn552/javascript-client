@@ -11,12 +11,12 @@ export default function syncMySegmentsFactory(partialProducers) {
   function dequeSyncMySegmentsCall() {
     if (mySegmentsChangesQueues.length > 0) {
       const { changeNumber, userKey } = mySegmentsChangesQueues.pop();
-      if(partialProducers[userKey]) {
+      if (partialProducers[userKey]) {
         const { producer, mySegmentsStorage } = partialProducers[userKey];
         if (changeNumber > mySegmentsStorage.getChangeNumber()) {
-          producer.callMySegmentsUpdater().then(() => {
-            dequeSyncMySegmentsCall();
-          });
+          producer.callMySegmentsUpdater().then(
+            dequeSyncMySegmentsCall
+          );
         }
       }
       dequeSyncMySegmentsCall();
@@ -49,14 +49,11 @@ export default function syncMySegmentsFactory(partialProducers) {
     // each mySegmentsChange notification without a segmentList triggers a `/mySegments` fetch
     const currentChangeNumber = mySegmentsStorage.getChangeNumber();
 
-    if (changeNumber <= currentChangeNumber)
-      return;
+    if (changeNumber <= currentChangeNumber) return;
 
     mySegmentsChangesQueues.push({ changeNumber, userKey });
 
-    if (producer.isMySegmentsUpdaterRunning()) {
-      return;
-    }
+    if (producer.isMySegmentsUpdaterRunning()) return;
 
     dequeSyncMySegmentsCall();
   }
