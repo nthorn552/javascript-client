@@ -14,12 +14,36 @@ export default function NodeSyncManagerFactory(context) {
   let pushManager = undefined;
   let producer = undefined;
 
+  function startPolling() {
+    if (!producer.isRunning())
+      producer.start();
+  }
+
+  // for the moment, `stopPolling` is called together with `syncAll`, but they are separated for future scenarios
+  function stopPolling() {
+    // if polling, stop
+    if (producer.isRunning())
+      producer.stop();
+  }
+
+  function syncAll() {
+    // fetch splits and segments
+    // @TODO handle errors
+    producer.callSplitsUpdater().then(() => {
+      producer.callSegmentsUpdater();
+    });
+  }
+
   return {
     startMainClient(context) {
       producer = FullProducerFactory(context);
       // start syncing
       if (settings.streamingEnabled)
-        pushManager = PushManagerFactory(context, producer);
+        pushManager = PushManagerFactory({
+          startPolling,
+          stopPolling,
+          syncAll,
+        }, context, producer);
       if (!pushManager)
         producer.start();
     },

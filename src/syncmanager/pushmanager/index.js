@@ -2,7 +2,6 @@ import SSEClient from '../sseclient';
 import authenticate from '../authclient';
 import NotificationProcessorFactory from '../notificationprocessor';
 import { hashUserKey } from '../../utils/push';
-import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
 import syncSplitsFactory from '../syncsplits';
@@ -16,7 +15,7 @@ import syncMySegmentsFactory from '../syncmysegments';
  * @param {*} producer producer of the main client
  * @param {*} userKey user key of the main client for browser. `undefined` for node.
  */
-export default function PushManagerFactory(context, producer, userKey) {
+export default function PushManagerFactory(syncManager, context, producer, userKey) {
 
   const sseClient = SSEClient.getInstance();
 
@@ -113,46 +112,12 @@ export default function PushManagerFactory(context, producer, userKey) {
 
   const syncSegments = userKey ? syncMySegmentsFactory(partialProducers) : syncSegmentsFactory(storage.segments, producer);
 
-  /** Feedbackloop functions, according to the spec */
-
-  function startPolling() {
-    // producer will have a single producer in node, and the list of partialProducers in browser
-    const producers = userKey ? partialProducers : { 'node': { producer } };
-
-    forOwn(producers, function (entry) {
-      if (!entry.producer.isRunning())
-        entry.producer.start();
-    });
-  }
-
-  function stopPollingAndSyncAll() {
-    // producer will have a single producer in node, and the list of partialProducers in browser
-    const producers = userKey ? partialProducers : { 'node': { producer } };
-
-    forOwn(producers, function (entry) {
-      if (entry.producer.isRunning())
-        entry.producer.stop();
-    });
-
-    // fetch splits and segments.
-    if (!userKey) { // node
-      producer.callSplitsUpdater().then(() => {
-        producer.callSegmentsUpdater();
-      });
-    } else { // browser
-      producer.callSplitsUpdater();
-      // @TODO review precence of segments to run mySegmentUpdaters
-      forOwn(partialProducers, function (entry) {
-        entry.producer.callMySegmentsUpdater();
-      });
-    }
-  }
-
   /** initialization */
 
   const notificationProcessor = NotificationProcessorFactory({
-    startPolling,
-    stopPollingAndSyncAll,
+    startPolling: syncManager.startPolling,
+    stopPolling: syncManager.stopPolling,
+    syncAll: syncManager.syncAll,
     reconnectPush: connect,
     queueSyncSplits: syncSplits.queueSyncSplits,
     queueSyncSegments: syncSegments.queueSyncSegments,
@@ -161,8 +126,7 @@ export default function PushManagerFactory(context, producer, userKey) {
   }, userKeyHashes);
   sseClient.setEventHandler(notificationProcessor);
 
-  // @TODO we could separate `syncAll` from `stopPollingAndSyncAll`
-  stopPollingAndSyncAll();
+  syncManager.syncAll();
   connect();
 
   return {

@@ -2,6 +2,7 @@ import PushManagerFactory from './pushmanager';
 import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
+import { forOwn } from '../utils/lang';
 
 /**
  * Factory of sync manager
@@ -18,6 +19,31 @@ export default function BrowserSyncManagerFactory(context) {
   let producer = undefined;
   const partialProducers = {};
 
+  function startPolling() {
+    forOwn(partialProducers, function (entry) {
+      if (!entry.producer.isRunning())
+        entry.producer.start();
+    });
+  }
+
+  function stopPolling() {
+    // if polling, stop
+    forOwn(partialProducers, function (entry) {
+      if (entry.producer.isRunning())
+        entry.producer.stop();
+    });
+  }
+
+  function syncAll() {
+    // fetch splits and segments
+    // @TODO handle errors
+    producer.callSplitsUpdater();
+    // @TODO review precence of segments to run mySegmentUpdaters
+    forOwn(partialProducers, function (entry) {
+      entry.producer.callMySegmentsUpdater();
+    });
+  }
+
   return {
 
     startMainClient(context) {
@@ -33,7 +59,11 @@ export default function BrowserSyncManagerFactory(context) {
 
       // start syncing
       if (settings.streamingEnabled)
-        pushManager = PushManagerFactory(context, producer, userKey);
+        pushManager = PushManagerFactory({
+          startPolling,
+          stopPolling,
+          syncAll,
+        }, context, producer, userKey);
       if (!pushManager)
         producer.start();
     },
