@@ -1,21 +1,18 @@
 import SSEClient from '../sseclient';
 import authenticate from '../authclient';
 import NotificationProcessorFactory from '../notificationprocessor';
-import { hashUserKey } from '../../utils/push';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
-import syncSplitsFactory from '../syncsplits';
-import syncSegmentsFactory from '../syncsegments';
-import syncMySegmentsFactory from '../syncmysegments';
+import syncSplitsFactory from '../splitSync';
+import syncSegmentsFactory from '../segmentSync';
 
 /**
  * Factory of the push mode manager.
  *
  * @param {*} context context of the main client
  * @param {*} producer producer of the main client
- * @param {*} userKey user key of the main client for browser. `undefined` for node.
  */
-export default function PushManagerFactory(syncManager, context, producer, userKey) {
+export default function PushManagerFactory(syncManager, context, producer, partialProducers) {
 
   const sseClient = SSEClient.getInstance();
 
@@ -29,32 +26,6 @@ export default function PushManagerFactory(syncManager, context, producer, userK
   const storage = context.get(context.constants.STORAGE);
 
   /** Functions used to handle mySegments synchronization for browser */
-
-  // userKeys contain the set of keys used for authentication on client-side. The object stay empty in server-side.
-  const userKeys = {};
-  // userKeyHashes contain the list of key hashes used by NotificationProcessor to map MY_SEGMENTS_UPDATE channels to userKey
-  const userKeyHashes = {};
-  // reference to partial producers and segments storage, to handle synchronization
-  const partialProducers = {};
-
-  function addPartialProducer(userKey, producer, mySegmentsStorage) {
-    partialProducers[userKey] = { producer, mySegmentsStorage };
-    const hash = hashUserKey(userKey);
-    userKeys[userKey] = hash;
-    userKeyHashes[hash] = userKey;
-  }
-  function removePartialProducer(userKey, producer) {
-    delete partialProducers[userKey];
-    delete userKeyHashes[userKeys[userKey]];
-    delete userKeys[userKey];
-
-    if (producer.isRunning())
-      producer.stop();
-  }
-
-  // for browser, add main producer as `partial producer` to handle its mySegments synchronization
-  if (userKey)
-    addPartialProducer(userKey, producer, storage.segments);
 
   /** PushManager functions, according to the spec */
 
@@ -82,7 +53,7 @@ export default function PushManagerFactory(syncManager, context, producer, userK
   }
 
   function connect() {
-    authenticate(settings, userKeys).then(
+    authenticate(settings, partialProducers ? partialProducers.userKeys : undefined).then(
       function (authData) {
         if (!authData.pushEnabled)
           throw new Error('Streaming is not enabled for the organization');
@@ -108,22 +79,23 @@ export default function PushManagerFactory(syncManager, context, producer, userK
 
   /** Functions related to synchronization according to the spec (Queues and Workers) */
 
-  const syncSplits = syncSplitsFactory(storage.splits, producer);
+  const splitSync = syncSplitsFactory(storage.splits, producer);
 
-  const syncSegments = userKey ? syncMySegmentsFactory(partialProducers) : syncSegmentsFactory(storage.segments, producer);
+  const segmentSync = syncSegmentsFactory(storage.segments, producer);
 
   /** initialization */
 
   const notificationProcessor = NotificationProcessorFactory({
+    // SyncManager
     startPolling: syncManager.startPolling,
     stopPolling: syncManager.stopPolling,
     syncAll: syncManager.syncAll,
+    // PushManager
     reconnectPush: connect,
-    queueSyncSplits: syncSplits.queueSyncSplits,
-    queueSyncSegments: syncSegments.queueSyncSegments,
-    queueSyncMySegments: syncSegments.queueSyncMySegments,
-    killSplit: syncSplits.killSplit,
-  }, userKeyHashes);
+    // SyncWorkers
+    splitSync,
+    segmentSync,
+  }, partialProducers);
   sseClient.setEventHandler(notificationProcessor);
 
   syncManager.syncAll();
@@ -138,9 +110,5 @@ export default function PushManagerFactory(syncManager, context, producer, userK
       if (producer.isRunning())
         producer.stop();
     },
-
-    // Methods used by SyncManager for browser
-    addPartialProducer,
-    removePartialProducer,
   };
 }

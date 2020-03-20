@@ -1,46 +1,46 @@
 import { Types, errorParser, messageParser } from './notificationparser';
 
 // @TODO logging
-export default function NotificationProcessorFactory(feedbackLoop, userKeyHashes) {
+export default function NotificationProcessorFactory(callbacks, partialProducers) {
 
   function handleEvent(eventData, channel) {
     switch (eventData.type) {
       case Types.SPLIT_UPDATE:
-        feedbackLoop.queueSyncSplits(
+        callbacks.splitSync.queueSyncSplits(
           eventData.changeNumber);
         break;
       case Types.SEGMENT_UPDATE:
-        feedbackLoop.queueSyncSegments(
+        callbacks.segmentSync.queueSyncSegments(
           eventData.changeNumber,
           eventData.segmentName);
         break;
       case Types.MY_SEGMENTS_UPDATE: {
         // @TODO test the following way to get the userKey from the channel hash
         const userKeyHash = channel.split('_')[2];
-        const userKey = userKeyHashes[userKeyHash];
-        feedbackLoop.queueSyncMySegments(
+        const userKey = partialProducers.userKeyHashes[userKeyHash];
+        callbacks.segmentSync.queueSyncMySegments(
           eventData.changeNumber,
           userKey,
           eventData.includesPayload ? eventData.segmentList : undefined);
         break;
       }
       case Types.SPLIT_KILL:
-        feedbackLoop.killSplit(
+        callbacks.splitSync.killSplit(
           eventData.changeNumber,
           eventData.splitName,
           eventData.defaultTreatment);
         break;
       // @REVIEW do we need to close the connection if STREAMING_DOWN?
       case Types.STREAMING_DOWN:
-        feedbackLoop.startPolling();
+        callbacks.startPolling();
         break;
       case Types.STREAMING_UP:
-        feedbackLoop.stopPolling();
-        feedbackLoop.syncAll();
+        callbacks.stopPolling();
+        callbacks.syncAll();
         break;
       // @REVIEW is there some scenario where we should consider a DISCONNECT event type?
       case Types.RECONNECT:
-        feedbackLoop.reconnectPush();
+        callbacks.reconnectPush();
         break;
     }
   }
