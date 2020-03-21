@@ -3,6 +3,7 @@ import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn } from '../utils/lang';
+import { hashUserKey } from '../../utils/push';
 
 /**
  * Factory of sync manager
@@ -17,20 +18,58 @@ export default function BrowserSyncManagerFactory(context) {
   const settings = context.get(context.constants.SETTINGS);
   let pushManager = undefined;
   let producer = undefined;
-  const partialProducers = {};
+
+  const clients = {
+    // mapping of user keys to hashes
+    userKeys: {},
+    // inverse mapping of hashes to user keys
+    userKeyHashes: {},
+    // reference to partial producer (`producer`) and segments storage (`mySegmentsStorage`) per client, to handle synchronization
+    clients: {},
+  };
+
+  function addClient(userKey, clientContext, isMainClient) {
+    if (!clients.clients[userKey]) {
+      const producer = isMainClient ? FullProducerFactory(clientContext) : PartialProducerFactory(clientContext);
+      const mySegmentsStorage = clientContext.get(context.constants.STORAGE).segments;
+      clients.clients[userKey] = { producer, mySegmentsStorage, count: 1 };
+
+      const hash = hashUserKey(userKey);
+      clients.userKeys[userKey] = hash;
+      clients.userKeyHashes[hash] = userKey;
+
+      return producer;
+    } else {
+      // if previously created, count it
+      clients.clients[userKey].count++;
+    }
+  }
+
+  function removeClient(userKey) {
+    const client = clients.clients[userKey];
+    if (client) {
+      client.count--;
+      if (client.count === 0) {
+        delete clients.clients[userKey];
+        delete clients.userKeyHashes[clients.userKeys[userKey]];
+        delete clients.userKeys[userKey];
+        return client.producer;
+      }
+    }
+  }
 
   function startPolling() {
-    forOwn(partialProducers, function (entry) {
-      if (!entry.producer.isRunning())
-        entry.producer.start();
+    forOwn(clients.partialProducers, function (producer) {
+      if (!producer.isRunning())
+        producer.start();
     });
   }
 
   function stopPolling() {
     // if polling, stop
-    forOwn(partialProducers, function (entry) {
-      if (entry.producer.isRunning())
-        entry.producer.stop();
+    forOwn(clients.partialProducers, function (producer) {
+      if (producer.isRunning())
+        producer.stop();
     });
   }
 
@@ -39,65 +78,58 @@ export default function BrowserSyncManagerFactory(context) {
     // @TODO handle errors
     producer.callSplitsUpdater();
     // @TODO review precence of segments to run mySegmentUpdaters
-    forOwn(partialProducers, function (entry) {
-      entry.producer.callMySegmentsUpdater();
+    forOwn(clients.partialProducers, function (producer) {
+      producer.callMySegmentsUpdater();
     });
   }
 
   return {
 
     startMainClient(context) {
-      // create fullProducer and save reference as a `partialProducer`
-      // in order to keep a single mySegmentUpdater for the same user key.
-      producer = FullProducerFactory(context);
+      // create fullProducer and save reference in the `clients` list
+      // in order to keep a single partialProducer for the same user key.
 
       const userKey = matching(settings.core.key);
-      partialProducers[userKey] = {
-        producer,
-        count: 1,
-      };
+      producer = addClient(userKey, context, true);
 
-      // start syncing
       if (settings.streamingEnabled)
         pushManager = PushManagerFactory({
           startPolling,
           stopPolling,
           syncAll,
-        }, context, producer, userKey);
-      if (!pushManager)
+        }, context, producer, clients);
+
+      // start syncing
+      if (pushManager) {
+        syncAll();
+        pushManager.connect();
+      } else {
         producer.start();
+      }
     },
 
     stopMainClient() {
       // stop syncing
       if (pushManager)
-        pushManager.stopFullProducer(producer);
-      else
+        pushManager.stopPush();
+
+      if (producer.isRunning())
         producer.stop();
     },
 
     startSharedClient(sharedContext, settings) {
 
       const userKey = matching(settings.core.key);
-      if (!partialProducers[userKey]) {
-        // if not previously created or already stoped (count === 0),
-        // create new partialProducer and save reference for `stopSharedClient`
-        const partialProducer = PartialProducerFactory(sharedContext);
-        partialProducers[userKey] = {
-          producer: partialProducer,
-          count: 1,
-        };
-
+      const partialProducer = addClient(userKey, sharedContext, false);
+      if (partialProducer) {
         // start syncing
         if (pushManager) {
-          const mySegmentsStorage = sharedContext.get(context.constants.STORAGE).segments;
-          pushManager.addPartialProducer(userKey, partialProducer, mySegmentsStorage);
-        } else
+          // reconnect pushmanager to subscribe to the new mySegments channel
+          pushManager.connect();
+        } else {
+          // start polling
           partialProducer.start();
-
-      } else {
-        // if previously created, count it
-        partialProducers[userKey].count++;
+        }
       }
     },
 
@@ -105,18 +137,14 @@ export default function BrowserSyncManagerFactory(context) {
 
       const userKey = matching(settings.core.key);
 
-      const entry = partialProducers[userKey];
-      if (entry) {
-        entry.count--;
-        const { producer, count } = entry;
-        // stop syncing
-        if (count === 0) {
-          delete partialProducers[userKey];
-          if (pushManager)
-            pushManager.removePartialProducer(userKey, producer);
-          else
-            producer.stop();
-        }
+      const partialProducer = removeClient(userKey);
+      if (partialProducer && partialProducer.isRunning()) {
+        partialProducer.stop();
+
+        // does not reconnect pushmanager when removing a client,
+        // since it is more costly than continue listening the channel
+        // if (pushManager)
+        //   pushManager.connect();
       }
     },
   };

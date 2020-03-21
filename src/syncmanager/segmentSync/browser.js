@@ -1,8 +1,8 @@
 /**
  *
- * @param {*} partialProducers map of user keys to pairs of producer and segment storage
+ * @param {*} clients map of user keys to pairs of producer and segment storage
  */
-export default function syncMySegmentsFactory(partialProducers) {
+export default function syncMySegmentsFactory(clients) {
 
   let mySegmentsChangesQueues = [];
 
@@ -11,8 +11,8 @@ export default function syncMySegmentsFactory(partialProducers) {
   function dequeSyncMySegmentsCall() {
     if (mySegmentsChangesQueues.length > 0) {
       const { changeNumber, userKey } = mySegmentsChangesQueues.pop();
-      if (partialProducers[userKey]) {
-        const { producer, mySegmentsStorage } = partialProducers[userKey];
+      if (clients[userKey]) {
+        const { producer, mySegmentsStorage } = clients[userKey];
         if (changeNumber > mySegmentsStorage.getChangeNumber()) {
           producer.callMySegmentsUpdater().then(
             dequeSyncMySegmentsCall
@@ -31,17 +31,17 @@ export default function syncMySegmentsFactory(partialProducers) {
    * @param {*} segmentList might be undefined
    */
   function queueSyncMySegments(changeNumber, userKey, segmentList) {
-    if (!partialProducers[userKey]) return;
+    if (!clients[userKey]) return;
 
-    const { producer, mySegmentsStorage } = partialProducers[userKey];
+    const { producer, mySegmentsStorage } = clients[userKey];
 
     // if `segmentList` is present, directly call MySegmentsUpdater to update storage
     // @TODO This block might be removed once `/mySegments` endpoint returns `changeNumber`,
     // since in that case we can track the last `changeNumber` at the segment storage.
-    if (!partialProducers[userKey].changeNumber) partialProducers[userKey].changeNumber = -1;
-    if (segmentList && changeNumber > partialProducers[userKey].changeNumber) {
+    if (!clients[userKey].changeNumber) clients[userKey].changeNumber = -1;
+    if (segmentList && changeNumber > clients[userKey].changeNumber) {
       producer.callMySegmentsUpdater(segmentList);
-      partialProducers[userKey].changeNumber = changeNumber;
+      clients[userKey].changeNumber = changeNumber;
       return;
     }
 

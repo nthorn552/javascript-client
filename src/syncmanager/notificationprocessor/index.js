@@ -1,7 +1,7 @@
 import { Types, errorParser, messageParser } from './notificationparser';
 
 // @TODO logging
-export default function NotificationProcessorFactory(callbacks, partialProducers) {
+export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
 
   function handleEvent(eventData, channel) {
     switch (eventData.type) {
@@ -17,7 +17,7 @@ export default function NotificationProcessorFactory(callbacks, partialProducers
       case Types.MY_SEGMENTS_UPDATE: {
         // @TODO test the following way to get the userKey from the channel hash
         const userKeyHash = channel.split('_')[2];
-        const userKey = partialProducers.userKeyHashes[userKeyHash];
+        const userKey = userKeyHashes[userKeyHash];
         callbacks.segmentSync.queueSyncMySegments(
           eventData.changeNumber,
           userKey,

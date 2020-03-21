@@ -37,21 +37,28 @@ export default function NodeSyncManagerFactory(context) {
   return {
     startMainClient(context) {
       producer = FullProducerFactory(context);
-      // start syncing
+
       if (settings.streamingEnabled)
         pushManager = PushManagerFactory({
           startPolling,
           stopPolling,
           syncAll,
         }, context, producer);
-      if (!pushManager)
+
+      // start syncing
+      if (pushManager) {
+        syncAll();
+        pushManager.connect();
+      } else {
         producer.start();
+      }
     },
     stopMainClient() {
       // stop syncing
       if (pushManager)
-        pushManager.stopFullProducer(producer);
-      else
+        pushManager.stopPush();
+
+      if (producer.isRunning())
         producer.stop();
     },
   };

@@ -9,10 +9,12 @@ import syncSegmentsFactory from '../segmentSync';
 /**
  * Factory of the push mode manager.
  *
- * @param {*} context context of the main client
- * @param {*} producer producer of the main client
+ * @param {*} syncManager reference to syncManager for callback functions
+ * @param {*} context context of main client
+ * @param {*} producer producer of main client (/produce/node or /producer/browser/full)
+ * @param {*} clients object with client information to handle mySegments synchronization. It is undefined for node.
  */
-export default function PushManagerFactory(syncManager, context, producer, partialProducers) {
+export default function PushManagerFactory(syncManager, context, producer, clients) {
 
   const sseClient = SSEClient.getInstance();
 
@@ -53,7 +55,7 @@ export default function PushManagerFactory(syncManager, context, producer, parti
   }
 
   function connect() {
-    authenticate(settings, partialProducers ? partialProducers.userKeys : undefined).then(
+    authenticate(settings, clients ? clients.userKeys : undefined).then(
       function (authData) {
         if (!authData.pushEnabled)
           throw new Error('Streaming is not enabled for the organization');
@@ -81,7 +83,7 @@ export default function PushManagerFactory(syncManager, context, producer, parti
 
   const splitSync = syncSplitsFactory(storage.splits, producer);
 
-  const segmentSync = syncSegmentsFactory(storage.segments, producer);
+  const segmentSync = clients ? syncSegmentsFactory(clients.clients) : syncSegmentsFactory(storage.segments, producer);
 
   /** initialization */
 
@@ -95,20 +97,14 @@ export default function PushManagerFactory(syncManager, context, producer, parti
     // SyncWorkers
     splitSync,
     segmentSync,
-  }, partialProducers);
+  }, clients.userKeyHashes);
   sseClient.setEventHandler(notificationProcessor);
 
-  syncManager.syncAll();
-  connect();
-
   return {
-    stopFullProducer(producer) { // same producer passed to NodePushManagerFactory
+    stopPush() { // same producer passed to NodePushManagerFactory
       // remove listener, so that when connection is closed, polling mode is not started.
       sseClient.setEventHandler(undefined);
       sseClient.close();
-
-      if (producer.isRunning())
-        producer.stop();
     },
   };
 }
