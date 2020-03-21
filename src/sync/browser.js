@@ -1,4 +1,4 @@
-import PushManagerFactory from './pushmanager';
+import PushManagerFactory from './PushManager';
 import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';

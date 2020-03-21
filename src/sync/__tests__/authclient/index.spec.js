@@ -1,5 +1,5 @@
 import tape from 'tape';
-import authenticate from '../../authclient';
+import authenticate from '../../AuthClient';
 import SettingsFactory from '../../../utils/settings/index';
 import MockAdapter from 'axios-mock-adapter';
 import { __getAxiosInstance } from '../../../services/transport';

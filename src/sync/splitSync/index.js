@@ -3,7 +3,7 @@
  * @param {*} splitStorage
  * @param {*} splitProducer
  */
-export default function syncSplitsFactory(splitStorage, splitProducer) {
+export default function splitSyncFactory(splitStorage, splitProducer) {
 
   let splitChangesQueue = [];
 

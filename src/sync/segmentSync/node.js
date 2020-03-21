@@ -3,7 +3,7 @@
  * @param {*} segmentsStorage
  * @param {*} segmentsProducer
  */
-export default function syncSegmentsFactory(segmentsStorage, segmentsProducer) {
+export default function segmentSyncFactory(segmentsStorage, segmentsProducer) {
 
   let segmentsChangesQueues = [];
 

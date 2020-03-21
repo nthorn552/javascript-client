@@ -6,7 +6,7 @@
  */
 
 import tape from 'tape';
-import { jwtSample, decodedJwtPayloadSample, base64sample, decodedBase64sample, userKeySample, userKeyBase64HashSample } from '../../../syncmanager/__tests__/mocks/dataMocks';
+import { jwtSample, decodedJwtPayloadSample, base64sample, decodedBase64sample, userKeySample, userKeyBase64HashSample } from '../../../sync/__tests__/mocks/dataMocks';
 
 import { encodeToBase64, decodeFromBase64, decodeJWTtoken, hashUserKey } from '../../push';
 

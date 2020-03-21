@@ -2,7 +2,7 @@
  *
  * @param {*} clients map of user keys to pairs of producer and segment storage
  */
-export default function syncMySegmentsFactory(clients) {
+export default function mySegmentSyncFactory(clients) {
 
   let mySegmentsChangesQueues = [];
 

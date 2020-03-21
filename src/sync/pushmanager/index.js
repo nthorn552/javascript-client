@@ -1,10 +1,10 @@
-import SSEClient from '../sseclient';
-import authenticate from '../authclient';
-import NotificationProcessorFactory from '../notificationprocessor';
+import SSEClient from '../SSEClient';
+import authenticate from '../AuthClient';
+import NotificationProcessorFactory from '../NotificationProcessor';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
-import syncSplitsFactory from '../splitSync';
-import syncSegmentsFactory from '../segmentSync';
+import splitSyncFactory from '../SplitSync';
+import segmentSyncFactory from '../SegmentSync';
 
 /**
  * Factory of the push mode manager.
@@ -81,9 +81,9 @@ export default function PushManagerFactory(syncManager, context, producer, clien
 
   /** Functions related to synchronization according to the spec (Queues and Workers) */
 
-  const splitSync = syncSplitsFactory(storage.splits, producer);
+  const splitSync = splitSyncFactory(storage.splits, producer);
 
-  const segmentSync = clients ? syncSegmentsFactory(clients.clients) : syncSegmentsFactory(storage.segments, producer);
+  const segmentSync = clients ? segmentSyncFactory(clients.clients) : segmentSyncFactory(storage.segments, producer);
 
   /** initialization */
 
