@@ -40,7 +40,7 @@ export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
         break;
       // @REVIEW is there some scenario where we should consider a DISCONNECT event type?
       case Types.RECONNECT:
-        callbacks.reconnectPush();
+        callbacks.connectPush();
         break;
     }
   }
@@ -48,12 +48,12 @@ export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
   return {
     handleOpen() {
       // @REVIEW: call handleEvent({type: Types.STREAMING_UP}); // or Types.STREAMING_RECONNECTED according to spec
-      feedbackLoop.syncAll();
+      callbacks.syncAll();
     },
 
     handleClose() {
       // @REVIEW: call handleEvent({type: Types.STREAMING_DOWN});
-      feedbackLoop.startPolling();
+      callbacks.startPolling();
     },
 
     handleError(error) {

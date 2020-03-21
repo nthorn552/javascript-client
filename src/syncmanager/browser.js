@@ -3,7 +3,7 @@ import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn } from '../utils/lang';
-import { hashUserKey } from '../../utils/push';
+import { hashUserKey } from '../utils/push';
 
 /**
  * Factory of sync manager
@@ -59,17 +59,17 @@ export default function BrowserSyncManagerFactory(context) {
   }
 
   function startPolling() {
-    forOwn(clients.partialProducers, function (producer) {
-      if (!producer.isRunning())
-        producer.start();
+    forOwn(clients.clients, function (entry) {
+      if (!entry.producer.isRunning())
+        entry.producer.start();
     });
   }
 
   function stopPolling() {
     // if polling, stop
-    forOwn(clients.partialProducers, function (producer) {
-      if (producer.isRunning())
-        producer.stop();
+    forOwn(clients.clients, function (entry) {
+      if (entry.producer.isRunning())
+        entry.producer.stop();
     });
   }
 
@@ -78,8 +78,8 @@ export default function BrowserSyncManagerFactory(context) {
     // @TODO handle errors
     producer.callSplitsUpdater();
     // @TODO review precence of segments to run mySegmentUpdaters
-    forOwn(clients.partialProducers, function (producer) {
-      producer.callMySegmentsUpdater();
+    forOwn(clients.clients, function (entry) {
+      entry.producer.callMySegmentsUpdater();
     });
   }
 
@@ -102,7 +102,7 @@ export default function BrowserSyncManagerFactory(context) {
       // start syncing
       if (pushManager) {
         syncAll();
-        pushManager.connect();
+        pushManager.connectPush();
       } else {
         producer.start();
       }
@@ -125,7 +125,7 @@ export default function BrowserSyncManagerFactory(context) {
         // start syncing
         if (pushManager) {
           // reconnect pushmanager to subscribe to the new mySegments channel
-          pushManager.connect();
+          pushManager.connectPush();
         } else {
           // start polling
           partialProducer.start();
@@ -144,7 +144,7 @@ export default function BrowserSyncManagerFactory(context) {
         // does not reconnect pushmanager when removing a client,
         // since it is more costly than continue listening the channel
         // if (pushManager)
-        //   pushManager.connect();
+        //   pushManager.connectPush();
       }
     },
   };

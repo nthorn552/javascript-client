@@ -50,11 +50,11 @@ export default function PushManagerFactory(syncManager, context, producer, clien
     // - scheduled connects for refresh token, auth errors and sse errors.
     if (timeoutID) clearTimeout(timeoutID);
     timeoutID = setTimeout(() => {
-      connect();
+      connectPush();
     }, delayInMillis);
   }
 
-  function connect() {
+  function connectPush() {
     authenticate(settings, clients ? clients.userKeys : undefined).then(
       function (authData) {
         if (!authData.pushEnabled)
@@ -93,11 +93,11 @@ export default function PushManagerFactory(syncManager, context, producer, clien
     stopPolling: syncManager.stopPolling,
     syncAll: syncManager.syncAll,
     // PushManager
-    reconnectPush: connect,
+    connectPush,
     // SyncWorkers
     splitSync,
     segmentSync,
-  }, clients.userKeyHashes);
+  }, clients ? clients.userKeyHashes : undefined);
   sseClient.setEventHandler(notificationProcessor);
 
   return {
@@ -106,5 +106,6 @@ export default function PushManagerFactory(syncManager, context, producer, clien
       sseClient.setEventHandler(undefined);
       sseClient.close();
     },
+    connectPush,
   };
 }

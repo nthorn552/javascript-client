@@ -48,7 +48,7 @@ export default function NodeSyncManagerFactory(context) {
       // start syncing
       if (pushManager) {
         syncAll();
-        pushManager.connect();
+        pushManager.connectPush();
       } else {
         producer.start();
       }
