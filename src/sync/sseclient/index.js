@@ -1,8 +1,8 @@
 import getEventSource from '../../services/getEventSource';
 
 // const CONNECTING = 0;
-const OPEN = 1;
-// const CLOSED = 2;
+// const OPEN = 1;
+const CLOSED = 2;
 
 // const BASE_URL = 'https://realtime.ably.io/event-stream';
 const BASE_URL = 'https://realtime.ably.io/sse';
@@ -54,7 +54,7 @@ export default class SSEClient {
 
   /** Close if opened */
   close() {
-    if (this.connection && this.connection.readyState === OPEN) {
+    if (this.connection && this.connection.readyState !== CLOSED) {
       this.connection.close();
       if (this.handler) this.handler.handleClose();
     }
