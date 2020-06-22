@@ -11,17 +11,13 @@ module.exports = function (api) {
     case 'production':
     case 'test':
       presets.push(['@babel/preset-env', {
-        'useBuiltIns': false,
         'modules': 'commonjs',
         'targets': {
           'ie': '10',
           'node': '6'
         }
       }]);
-      plugins.push(['@babel/transform-runtime', {
-        'useESModules': false,
-        'corejs': 3
-      }]);
+      plugins.push('@babel/plugin-transform-runtime');
       break;
 
     default: // es6 build
@@ -30,9 +26,8 @@ module.exports = function (api) {
       }]);
       plugins.push(
         '@babel/plugin-proposal-object-rest-spread',
-        ['@babel/transform-runtime', {
-          'useESModules': true,
-          'corejs': 3
+        ['@babel/plugin-transform-runtime', {
+          'useESModules': true
         }]
       );
       break;
