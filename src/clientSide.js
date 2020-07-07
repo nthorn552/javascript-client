@@ -130,11 +130,11 @@ export function SplitFactory(config) {
     Logger: API,
 
     // Expose SDK settings
-    settings
+    settings,
+    destroy() {
+      const destroyPromises = Object.keys(clientInstances).map((instanceId) => clientInstances[instanceId].destroy());
+      destroyPromises.push(mainClientInstance.destroy());
+      return Promise.all(destroyPromises);
+    }
   };
 }
-
-export const SplitFactoryCS = SplitFactory;
-
-// Can't resolve Nodejs API when importing ioredis
-// export { SplitFactory as SplitFactorySS } from './node';

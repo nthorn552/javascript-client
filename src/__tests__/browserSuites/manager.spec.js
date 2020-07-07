@@ -1,4 +1,4 @@
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../clientSide';
 import splitChangesMockReal from '../mocks/splitchanges.real.json';
 import map from 'lodash/map';
 

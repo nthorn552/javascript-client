@@ -2,8 +2,8 @@ import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../clientSide';
+import SettingsFactory from '../../utils/settings/clientSide';
 
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';

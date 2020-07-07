@@ -1,6 +1,6 @@
 import sinon from 'sinon';
-import { SplitFactory } from '../..';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../clientSide';
+import SettingsFactory from '../../utils/settings/clientSide';
 import { gaSpy, gaTag, removeGaTag, addGaTag } from './gaTestUtils';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 

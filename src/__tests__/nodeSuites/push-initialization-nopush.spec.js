@@ -1,5 +1,5 @@
-import { SplitFactory } from '../..';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../serverSide';
+import SettingsFactory from '../../utils/settings/serverSide';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';

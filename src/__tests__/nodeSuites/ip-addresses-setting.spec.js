@@ -1,7 +1,7 @@
 import osFunction from 'os';
 import ipFunction from 'ip';
-import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../serverSide';
+import SettingsFactory from '../../utils/settings/serverSide';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import { STANDALONE_MODE, CONSUMER_MODE } from '../../utils/constants';
 

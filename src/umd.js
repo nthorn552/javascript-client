@@ -1,3 +1,3 @@
-import { SplitFactory } from './index';
+import { SplitFactory } from './clientSide';
 
 export default SplitFactory;

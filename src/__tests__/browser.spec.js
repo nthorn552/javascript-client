@@ -16,7 +16,7 @@ import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-s
 import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
 import readyPromiseSuite from './browserSuites/ready-promise.spec';
 
-import SettingsFactory from '../utils/settings';
+import SettingsFactory from '../utils/settings/clientSide';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';

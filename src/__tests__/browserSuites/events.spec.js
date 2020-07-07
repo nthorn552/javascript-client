@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../clientSide';
+import SettingsFactory from '../../utils/settings/clientSide';
 
 const settings = SettingsFactory({
   core: {

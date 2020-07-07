@@ -4,7 +4,7 @@ import gaToSplitSuite from './ga-to-split.spec';
 import splitToGaSuite from './split-to-ga.spec';
 import bothIntegrationsSuite from './both-integrations.spec';
 
-import SettingsFactory from '../../utils/settings';
+import SettingsFactory from '../../utils/settings/clientSide';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';

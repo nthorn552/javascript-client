@@ -1,5 +1,5 @@
-import { SplitFactory } from '../..';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../clientSide';
+import SettingsFactory from '../../utils/settings/clientSide';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.

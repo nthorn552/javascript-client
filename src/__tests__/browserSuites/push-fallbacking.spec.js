@@ -29,8 +29,8 @@ import { nearlyEqual } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 window.EventSource = EventSourceMock;
 
-import { SplitFactory } from '../../index';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../clientSide';
+import SettingsFactory from '../../utils/settings/clientSide';
 
 const userKey = 'nicolas@split.io';
 const secondUserKey = 'marcio@split.io';

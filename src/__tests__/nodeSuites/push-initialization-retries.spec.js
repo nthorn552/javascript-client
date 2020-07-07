@@ -9,8 +9,8 @@ import { nearlyEqual } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
 
-import { SplitFactory } from '../../index';
-import SettingsFactory from '../../utils/settings';
+import { SplitFactory } from '../../serverSide';
+import SettingsFactory from '../../utils/settings/serverSide';
 
 const baseUrls = {
   sdk: 'https://sdk.push-initialization-retries/api',

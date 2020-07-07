@@ -7,10 +7,10 @@ import sinon from 'sinon';
 import RedisServer from 'redis-server';
 import RedisClient from 'ioredis';
 import { exec } from 'child_process';
-import { SplitFactory } from '../';
+import { SplitFactory } from '../serverSide';
 import { merge } from '../utils/lang';
 import KeyBuilder from '../storage/Keys';
-import SettingsFactory from '../utils/settings';
+import SettingsFactory from '../utils/settings/serverSide';
 import { nearlyEqual } from './testUtils';
 
 const IP_VALUE = ipFunction.address();

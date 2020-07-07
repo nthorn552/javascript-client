@@ -1,6 +1,6 @@
 import tape from 'tape-catch';
 import fetchMock from './testUtils/fetchMock';
-import SettingsFactory from '../utils/settings';
+import SettingsFactory from '../utils/settings/serverSide';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';
 import eventsSuite from './nodeSuites/events.spec';
