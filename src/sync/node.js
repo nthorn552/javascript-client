@@ -1,5 +1,5 @@
-import PushManagerFactory from './PushManager';
-import FullProducerFactory from '../producer';
+import PushManagerFactory from './PushManager/serverSide';
+import FullProducerFactory from '../producer/node';
 import logFactory from '../utils/logger';
 import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 const log = logFactory('splitio-sync:sync-manager');

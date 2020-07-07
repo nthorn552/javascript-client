@@ -1,6 +1,6 @@
 import SplitCacheInMemory from './SplitCache/InMemory';
 import SplitCacheInLocalStorage from './SplitCache/InLocalStorage';
-import SegmentCacheInMemory from './SegmentCache/InMemory';
+import SegmentCacheInMemory from './SegmentCache/InMemory/browser';
 import SegmentCacheInLocalStorage from './SegmentCache/InLocalStorage';
 import ImpressionsCacheInMemory from './ImpressionsCache/InMemory';
 import LatencyCacheInMemory from './LatencyCache/InMemory';

@@ -1,5 +1,5 @@
-import PushManagerFactory from './PushManager';
-import FullProducerFactory from '../producer';
+import PushManagerFactory from './PushManager/clientSide';
+import FullProducerFactory from '../producer/browser/Full';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn, toString } from '../utils/lang';
