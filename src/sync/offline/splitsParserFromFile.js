@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import { isString, endsWith, find, forOwn, uniq, } from '@splitsoftware/splitio-commons/src/utils/lang';
-import { parseCondition } from '@splitsoftware/splitio-commons/src/sync/offline/splitsParser/parseCondition';
+import { isString, endsWith, find, forOwn, uniq, } from '@nthorn-splitio/splitio-commons/src/utils/lang';
+import { parseCondition } from '@nthorn-splitio/splitio-commons/src/sync/offline/splitsParser/parseCondition';
 
 const logPrefix = 'sync:offline:fetcher: ';
 

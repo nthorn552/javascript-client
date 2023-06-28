@@ -64,8 +64,8 @@ module.exports = {
         {
           test: /\.(ts|js)$/,
 
-          // Cannot exclude 'node_modules/@splitsoftware/splitio-commons/src', in order to process TS files
-          exclude: /node_modules[/](?!@splitsoftware)/,
+          // Cannot exclude 'node_modules/@nthorn-splitio/splitio-commons/src', in order to process TS files
+          exclude: /node_modules[/](?!@nthorn-splitio)/,
 
           use: {
             loader: 'ts-loader',

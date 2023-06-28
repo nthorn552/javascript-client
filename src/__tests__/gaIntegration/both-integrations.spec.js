@@ -2,7 +2,7 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag } from './gaTestUtils';
 import includes from 'lodash/includes';
-import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { DEBUG } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 
 function countImpressions(parsedImpressionsBulkPayload) {

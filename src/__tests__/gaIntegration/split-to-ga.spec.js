@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag, removeGaTag, addGaTag } from './gaTestUtils';
-import { SPLIT_IMPRESSION, SPLIT_EVENT, DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { SPLIT_IMPRESSION, SPLIT_EVENT, DEBUG } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 
 function countImpressions(parsedImpressionsBulkPayload) {

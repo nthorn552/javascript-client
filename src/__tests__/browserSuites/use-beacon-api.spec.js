@@ -4,7 +4,7 @@ import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
 import { url } from '../testUtils';
-import { OPTIMIZED } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { OPTIMIZED } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 import { triggerPagehideEvent, triggerVisibilitychange } from '../testUtils/browser';
 
 const config = {

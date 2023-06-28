@@ -1,17 +1,17 @@
-import { splitApiFactory } from '@splitsoftware/splitio-commons/src/services/splitApi';
-import { syncManagerOnlineFactory } from '@splitsoftware/splitio-commons/src/sync/syncManagerOnline';
-import { pushManagerFactory } from '@splitsoftware/splitio-commons/src/sync/streaming/pushManager';
-import { pollingManagerCSFactory } from '@splitsoftware/splitio-commons/src/sync/polling/pollingManagerCS';
-import { InLocalStorage } from '@splitsoftware/splitio-commons/src/storages/inLocalStorage';
-import { InMemoryStorageCSFactory } from '@splitsoftware/splitio-commons/src/storages/inMemory/InMemoryStorageCS';
-import { sdkManagerFactory } from '@splitsoftware/splitio-commons/src/sdkManager';
-import { sdkClientMethodCSFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethodCSWithTT';
-import { impressionObserverCSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverCS';
-import { integrationsManagerFactory } from '@splitsoftware/splitio-commons/src/integrations/browser';
-import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/storage/storageCS';
-import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
-import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
-import { createUserConsentAPI } from '@splitsoftware/splitio-commons/src/consent/sdkUserConsent';
+import { splitApiFactory } from '@nthorn-splitio/splitio-commons/src/services/splitApi';
+import { syncManagerOnlineFactory } from '@nthorn-splitio/splitio-commons/src/sync/syncManagerOnline';
+import { pushManagerFactory } from '@nthorn-splitio/splitio-commons/src/sync/streaming/pushManager';
+import { pollingManagerCSFactory } from '@nthorn-splitio/splitio-commons/src/sync/polling/pollingManagerCS';
+import { InLocalStorage } from '@nthorn-splitio/splitio-commons/src/storages/inLocalStorage';
+import { InMemoryStorageCSFactory } from '@nthorn-splitio/splitio-commons/src/storages/inMemory/InMemoryStorageCS';
+import { sdkManagerFactory } from '@nthorn-splitio/splitio-commons/src/sdkManager';
+import { sdkClientMethodCSFactory } from '@nthorn-splitio/splitio-commons/src/sdkClient/sdkClientMethodCSWithTT';
+import { impressionObserverCSFactory } from '@nthorn-splitio/splitio-commons/src/trackers/impressionObserver/impressionObserverCS';
+import { integrationsManagerFactory } from '@nthorn-splitio/splitio-commons/src/integrations/browser';
+import { __InLocalStorageMockFactory } from '@nthorn-splitio/splitio-commons/src/utils/settingsValidation/storage/storageCS';
+import { sdkFactory } from '@nthorn-splitio/splitio-commons/src/sdkFactory';
+import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@nthorn-splitio/splitio-commons/src/utils/constants';
+import { createUserConsentAPI } from '@nthorn-splitio/splitio-commons/src/consent/sdkUserConsent';
 
 import { settingsFactory } from '../settings/browser';
 import { platform, SignalListener } from '../platform';
@@ -28,7 +28,7 @@ function getStorage(settings) {
 
 /**
  *
- * @param {import("@splitsoftware/splitio-commons/types/types").ISettings} settings
+ * @param {import("@nthorn-splitio/splitio-commons/types/types").ISettings} settings
  */
 function getModules(settings) {
 

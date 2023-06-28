@@ -1,10 +1,10 @@
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
-import { SDK_NOT_READY } from '@splitsoftware/splitio-commons/src/utils/labels';
+import { SDK_NOT_READY } from '@nthorn-splitio/splitio-commons/src/utils/labels';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import { OPTIMIZED } from '@splitsoftware/splitio-commons/src/utils/constants';
-import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time';
+import { OPTIMIZED } from '@nthorn-splitio/splitio-commons/src/utils/constants';
+import { truncateTimeFrame } from '@nthorn-splitio/splitio-commons/src/utils/time';
 import { url } from '../testUtils';
 
 const baseUrls = {

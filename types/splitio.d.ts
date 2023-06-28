@@ -485,9 +485,9 @@ interface IBasicSDK {
 }
 /****** Exposed namespace ******/
 /**
- * Types and interfaces for @splitsoftware/splitio package for usage when integrating javascript sdk on typescript apps.
+ * Types and interfaces for @nthorn-splitio/splitio package for usage when integrating javascript sdk on typescript apps.
  * For the SDK package information
- * @see {@link https://www.npmjs.com/package/@splitsoftware/splitio}
+ * @see {@link https://www.npmjs.com/package/@nthorn-splitio/splitio}
  */
 declare namespace SplitIO {
   /**

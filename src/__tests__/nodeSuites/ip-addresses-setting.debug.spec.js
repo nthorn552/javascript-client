@@ -3,7 +3,7 @@ import ipFunction from '../../utils/ip';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { DEBUG } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.

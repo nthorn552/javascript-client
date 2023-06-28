@@ -1,5 +1,5 @@
 import { packageVersion } from './version';
-import { CONSENT_GRANTED } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { CONSENT_GRANTED } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 
 export const defaults = {
   startup: {

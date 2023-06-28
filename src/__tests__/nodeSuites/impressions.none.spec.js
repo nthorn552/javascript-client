@@ -2,8 +2,8 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import { NONE } from '@splitsoftware/splitio-commons/src/utils/constants';
-import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time';
+import { NONE } from '@nthorn-splitio/splitio-commons/src/utils/constants';
+import { truncateTimeFrame } from '@nthorn-splitio/splitio-commons/src/utils/time';
 import { url } from '../testUtils';
 
 const baseUrls = {

@@ -18,7 +18,7 @@ For browsers it supports **IE10+ and all the other major browsers**. *However, I
 Below is a simple Node.js example that describes the instantiation and most basic usage of our SDK:
 ```javascript
 // Import the SDK
-var SplitFactory = require('@splitsoftware/splitio').SplitFactory;
+var SplitFactory = require('@nthorn-splitio/splitio').SplitFactory;
 
 // Instantiate the SDK
 var factory = SplitFactory({

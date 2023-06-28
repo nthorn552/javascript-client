@@ -3,7 +3,7 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { DEBUG } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 import { triggerPagehideEvent, triggerVisibilitychange } from '../testUtils/browser';
 

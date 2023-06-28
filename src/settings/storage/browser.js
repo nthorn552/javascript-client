@@ -1,5 +1,5 @@
-import { isLocalStorageAvailable } from '@splitsoftware/splitio-commons/src/utils/env/isLocalStorageAvailable';
-import { LOCALHOST_MODE, STORAGE_MEMORY } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { isLocalStorageAvailable } from '@nthorn-splitio/splitio-commons/src/utils/env/isLocalStorageAvailable';
+import { LOCALHOST_MODE, STORAGE_MEMORY } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 
 const STORAGE_LOCALSTORAGE = 'LOCALSTORAGE';
 

@@ -1,7 +1,7 @@
 import osFunction from 'os';
 import ipFunction from '../../utils/ip';
 
-import { UNKNOWN, NA, CONSUMER_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { UNKNOWN, NA, CONSUMER_MODE } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 
 export function validateRuntime(settings) {
   const isIPAddressesEnabled = settings.core.IPAddressesEnabled === true;

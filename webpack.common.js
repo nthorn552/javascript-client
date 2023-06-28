@@ -23,7 +23,7 @@ module.exports = {
         /*
         // Use next configuration to bundle from entry './src/umd.js'
 
-        exclude: /node_modules[/](?!@splitsoftware)/, // Cannot exclude 'node_modules/@splitsoftware/splitio-commons/src', in order to process TS files
+        exclude: /node_modules[/](?!@nthorn-splitio)/, // Cannot exclude 'node_modules/@nthorn-splitio/splitio-commons/src', in order to process TS files
         use: {
           loader: 'ts-loader',
           options: { allowTsInNodeModules: true } // https://github.com/TypeStrong/ts-loader#allowtsinnodemodules

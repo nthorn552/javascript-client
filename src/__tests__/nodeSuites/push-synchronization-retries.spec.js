@@ -10,7 +10,7 @@ import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
 import { nearlyEqual, mockSegmentChanges, url } from '../testUtils';
-import { Backoff } from '@splitsoftware/splitio-commons/src/utils/Backoff';
+import { Backoff } from '@nthorn-splitio/splitio-commons/src/utils/Backoff';
 
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 import { __setEventSource } from '../../platform/getEventSource/node';

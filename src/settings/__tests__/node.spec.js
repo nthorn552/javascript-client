@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import osFunction from 'os';
 import ipFunction from '../../utils/ip';
 import { settingsFactory } from '../node';
-import { CONSUMER_MODE, NA } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { CONSUMER_MODE, NA } from '@nthorn-splitio/splitio-commons/src/utils/constants';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();

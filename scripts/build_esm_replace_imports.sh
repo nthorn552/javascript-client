@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # replace splitio-commons imports to use ES modules
-replace '@splitsoftware/splitio-commons/src' '@splitsoftware/splitio-commons/esm' ./es -r
+replace '@nthorn-splitio/splitio-commons/src' '@nthorn-splitio/splitio-commons/esm' ./es -r
 
 if [ $? -eq 0 ]
 then

@@ -1,5 +1,5 @@
-import { settingsValidation } from '@splitsoftware/splitio-commons/src/utils/settingsValidation';
-import { validateLogger } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/logger/builtinLogger';
+import { settingsValidation } from '@nthorn-splitio/splitio-commons/src/utils/settingsValidation';
+import { validateLogger } from '@nthorn-splitio/splitio-commons/src/utils/settingsValidation/logger/builtinLogger';
 import { LocalhostFromFile } from '../sync/offline/LocalhostFromFile';
 
 import { defaults } from './defaults/node';
